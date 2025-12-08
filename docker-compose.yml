@@ -1,0 +1,27 @@
+version: "3.9"
+
+services:
+  r1-inference:
+    build:
+      context: ./services/r1_inference
+    ports:
+      - "8000:8000"
+    environment:
+      MODEL_MODE: ${MODEL_MODE:-mock}
+      MODEL_NAME: ${MODEL_NAME:-sshleifer/tiny-gpt2}
+      HOST: 0.0.0.0
+      PORT: 8000
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+
+  rag-api:
+    build:
+      context: ./services/rag_api
+    ports:
+      - "8100:8100"
+    environment:
+      HOST: 0.0.0.0
+      RAG_PORT: 8100
+      INFERENCE_URL: ${INFERENCE_URL:-http://r1-inference:8000/generate}
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8100"]
+    depends_on:
+      - r1-inference

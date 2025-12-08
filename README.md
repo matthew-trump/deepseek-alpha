@@ -4,6 +4,13 @@ The purpose of this project is to undertake a simple training of a self-hosted v
 
 The following is based on a conversation with ChatGPT 5.1:
 
+## Quick local stack (mock)
+
+- Requirements: Docker + docker compose.
+- From repo root: `docker compose up --build` to start `r1-inference` on port 8000 and `rag-api` on port 8100 (mock mode by default).
+- Test inference: `curl -X POST http://localhost:8000/generate -H "Content-Type: application/json" -d '{"prompt":"Hello"}'`
+- Test RAG stub: `curl -X POST http://localhost:8100/chat -H "Content-Type: application/json" -d '{"prompt":"Hello"}'`
+
 ## Initial query
 
 What I'd like is for you to design for me a sample project useful in a business ense that uses, say, DeepSeek-R1 self-hosted? Can you give me the outline of such. project, including such things as deployment pipeline, service on AWS?
