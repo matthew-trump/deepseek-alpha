@@ -5,6 +5,8 @@ from fastapi import Depends, FastAPI, HTTPException
 from pydantic import BaseModel, Field
 
 from .inference import get_inference_client, InferenceClient
+from .prompt import build_prompt
+from .retrieval import get_retriever, Retriever
 
 log_level = "INFO"
 logging.basicConfig(level=logging.getLevelName(log_level))
@@ -38,9 +40,15 @@ def get_app() -> FastAPI:
         return {"status": "ok"}
 
     @api.post("/chat", response_model=ChatResponse)
-    def chat(req: ChatRequest, client: InferenceClient = Depends(get_inference_client)) -> ChatResponse:
+    def chat(
+        req: ChatRequest,
+        client: InferenceClient = Depends(get_inference_client),
+        retriever: Retriever = Depends(get_retriever),
+    ) -> ChatResponse:
+        contexts = retriever.fetch(req.prompt)
+        prompt = build_prompt(req.prompt, contexts)
         try:
-            text = client.generate(req.prompt, req.max_new_tokens, req.temperature)
+            text = client.generate(prompt, req.max_new_tokens, req.temperature)
         except Exception as exc:  # pragma: no cover - httpx wraps detail
             logger.exception("Inference call failed")
             raise HTTPException(status_code=502, detail="Inference backend error") from exc
@@ -48,9 +56,15 @@ def get_app() -> FastAPI:
         return ChatResponse(text=text, source="inference")
 
     @api.post("/reason", response_model=ReasonResponse)
-    def reason(req: ReasonRequest, client: InferenceClient = Depends(get_inference_client)) -> ReasonResponse:
+    def reason(
+        req: ReasonRequest,
+        client: InferenceClient = Depends(get_inference_client),
+        retriever: Retriever = Depends(get_retriever),
+    ) -> ReasonResponse:
+        contexts = retriever.fetch(req.prompt)
+        prompt = build_prompt(req.prompt, contexts)
         try:
-            text = client.generate(req.prompt, req.max_new_tokens, req.temperature)
+            text = client.generate(prompt, req.max_new_tokens, req.temperature)
         except Exception as exc:  # pragma: no cover
             logger.exception("Inference call failed")
             raise HTTPException(status_code=502, detail="Inference backend error") from exc
