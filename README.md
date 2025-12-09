@@ -8,8 +8,18 @@ The following is based on a conversation with ChatGPT 5.1:
 
 - Requirements: Docker + docker compose.
 - From repo root: `docker compose up --build` to start `r1-inference` on port 8000 and `rag-api` on port 8100 (mock mode by default).
-- Test inference: `curl -X POST http://localhost:8000/generate -H "Content-Type: application/json" -d '{"prompt":"Hello"}'`
-- Test RAG stub: `curl -X POST http://localhost:8100/chat -H "Content-Type: application/json" -d '{"prompt":"Hello"}'`
+- Test inference:
+  ```bash
+  curl -X POST http://localhost:8000/generate \
+    -H "Content-Type: application/json" \
+    -d '{"prompt":"Hello"}'
+  ```
+- Test RAG stub (calls inference inside compose):
+  ```bash
+  curl -X POST http://localhost:8100/chat \
+    -H "Content-Type: application/json" \
+    -d '{"prompt":"Hello"}'
+  ```
 
 ## Initial query
 
