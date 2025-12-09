@@ -4,7 +4,7 @@ from typing import Optional
 from fastapi import Depends, FastAPI, HTTPException
 from pydantic import BaseModel, Field
 
-from services.rag_api.app.inference import get_inference_client, InferenceClient
+from .inference import get_inference_client, InferenceClient
 
 log_level = "INFO"
 logging.basicConfig(level=logging.getLevelName(log_level))
